@@ -4,14 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
 import android.os.Environment.getExternalStorageDirectory
 import android.provider.MediaStore
 import android.util.Log
@@ -24,20 +22,21 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     //Create the variables
     //-- Folder app / Images
-    val FOLDER_ROOT = "Camera/"
-    val PATH_IMAGES = "${FOLDER_ROOT}Images"
+    private val folderRoot = "Camera/"
+    private val pathImages = "${folderRoot}Images"
 
     //variable - Code_take_photo
-    val CODE_TAKE_FOTO = 200
+    private val codeTakePhoto = 200
 
     //variable imageView
-    lateinit var imageView: ImageView
+    private lateinit var imageView: ImageView
 
     //variable name image
-    lateinit var tempStamp: String
+    private lateinit var tempStamp: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,9 +52,14 @@ class MainActivity : AppCompatActivity() {
             getPermission()
 
         }
+        newMethod()
     }
 
-    val REQUEST_CODE_PHOTO = 200
+    private fun newMethod() {
+        Toast.makeText(this, "New method", Toast.LENGTH_LONG).show()
+    }
+
+    private val requestCodePhoto = 200
     private fun takePhoto() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePhotoIntent ->
             takePhotoIntent.resolveActivity(packageManager)?.also {
@@ -71,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                         this, "com.viajero.cmara", fileImage
                     )
                     takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriPhoto)
-                    startActivityForResult(takePhotoIntent, REQUEST_CODE_PHOTO)
+                    startActivityForResult(takePhotoIntent, requestCodePhoto)
                 }
             }
         }
@@ -79,9 +83,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == CODE_TAKE_FOTO) {
+        if (resultCode == Activity.RESULT_OK && requestCode == codeTakePhoto) {
             // the photo was taken successfully
-            MediaScannerConnection.scanFile(this, arrayOf(currentPath), null) { path, uri ->
+            MediaScannerConnection.scanFile(this, arrayOf(currentPath), null) { _, _ ->
                 Log.i("TAG", "Image saved")
             }
             val bitmap = BitmapFactory.decodeFile(currentPath)
@@ -89,11 +93,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    lateinit var currentPath: String
+    private lateinit var currentPath: String
     private fun createFileImage(): File? {
-        
+
         //Create path folder
-        val storageDir = File(getExternalStorageDirectory(), PATH_IMAGES)
+        val storageDir = File(getExternalStorageDirectory(), pathImages)
 
         //Check if directory exist
         var directoryExist: Boolean = storageDir.exists()
@@ -117,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val REQUEST_CODE_PERMISSIONS = 1000
+    private val requestCodePermission = 1000
     private fun getPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             when {
@@ -144,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                             Manifest.permission.CAMERA,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE
                         ),
-                        REQUEST_CODE_PERMISSIONS
+                        requestCodePermission
                     )
                 }
             }
@@ -155,14 +159,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val PERMISSION_CODE = 1000
+    private val requestCode = 1000
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_CODE) {
+        if (requestCode == this.requestCode) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 && grantResults[1] == PackageManager.PERMISSION_GRANTED
             ) {
